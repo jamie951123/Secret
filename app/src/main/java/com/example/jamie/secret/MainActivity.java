@@ -2,6 +2,7 @@ package com.example.jamie.secret;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -9,16 +10,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-import com.example.jamie.secret.DrawerLayout.DrawerLayoutModel;
-import com.example.jamie.secret.DrawerLayout.DrawerLayoutService;
-import com.example.jamie.secret.DrawerLayout.DrawerLayoutServiceImpl;
+import com.example.jamie.secret.Integrate.IntegrateContainer;
+import com.example.jamie.secret.model.MainModel;
+import com.example.jamie.secret.presenter.MainPresenter;
+import com.example.jamie.secret.view.MainView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainController extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener,MainView{
 
     @BindView(R.id.drawer_layout)
     DrawerLayout drawer;
@@ -28,28 +31,24 @@ public class MainController extends AppCompatActivity
     NavigationView navigationView;
 
     //Register
-    private DrawerLayoutService drawerLayoutService;
+    private MainPresenter mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_controller);
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
 
         //Register
-        drawerLayoutService = new DrawerLayoutServiceImpl();
-        //
-        nav_animation();
+        mainPresenter = new MainPresenter(this,new MainModel());
+        mainPresenter.onCreate();
+
 
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayoutModel drawerLayoutModel = new DrawerLayoutModel();
-        drawerLayoutModel.setDrawer(drawer);
+
         if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawerLayoutService.close(drawerLayoutModel);
+            drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
@@ -82,11 +81,12 @@ public class MainController extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        Fragment fragment = null;
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            fragment = new IntegrateContainer();
+            mainPresenter.onClickNav("camera");
         } else if (id == R.id.nav_gallery) {
-
+            mainPresenter.onClickNav("gallery");
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -97,16 +97,39 @@ public class MainController extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+//        if (fragment != null) {
+//            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//            ft.replace(R.id., fragment);
+//            ft.commit();
+//        }
+
         return true;
     }
 
-    private void nav_animation(){
+    @Override
+    public void setContentView() {
+        setContentView(R.layout.main_activity);
+        ButterKnife.bind(this);
+    }
+
+    @Override
+    public void setNav() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public void setSupportActionBar() {
+        setSupportActionBar(toolbar);
+    }
+
+    @Override
+    public void showToast(String msg) {
+        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
     }
 }
