@@ -3,6 +3,7 @@ package com.example.jamie.secret;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,10 +13,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.jamie.secret.Integrate.IntegrateContainer;
-import com.example.jamie.secret.model.MainModel;
-import com.example.jamie.secret.presenter.MainPresenter;
-import com.example.jamie.secret.view.MainView;
+import com.example.jamie.secret.structure.integrate.IntegrateContainer;
+import com.example.jamie.secret.structure.settings.SettingContainer;
+import com.example.jamie.secret.core.model.MainModel;
+import com.example.jamie.secret.core.presenter.MainPresenter;
+import com.example.jamie.secret.core.view.MainView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,8 +86,11 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         if (id == R.id.nav_camera) {
             fragment = new IntegrateContainer();
+            mainPresenter.showFagment(fragment);
             mainPresenter.onClickNav("camera");
         } else if (id == R.id.nav_gallery) {
+            fragment = new SettingContainer();
+            mainPresenter.showFagment(fragment);
             mainPresenter.onClickNav("gallery");
         } else if (id == R.id.nav_slideshow) {
 
@@ -99,18 +104,13 @@ public class MainActivity extends AppCompatActivity
 
         drawer.closeDrawer(GravityCompat.START);
 
-//        if (fragment != null) {
-//            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//            ft.replace(R.id., fragment);
-//            ft.commit();
-//        }
 
         return true;
     }
 
     @Override
     public void setContentView() {
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.nav_main_activity);
         ButterKnife.bind(this);
     }
 
@@ -131,5 +131,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void showToast(String msg) {
         Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showFagment(Fragment fragment) {
+        if (fragment != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.fragment_controller, fragment);
+            ft.commit();
+        }
     }
 }
